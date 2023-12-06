@@ -372,3 +372,5 @@ FodyWeavers.xsd
 /Microsoft.OpenAIRateLimiter.UI/Properties/launchSettings.json
 /App.zip
 /App.zip
+/Microsoft.OpenAIRateLimiter.UI/Properties/ServiceDependencies/CostGatewayApp - Web Deploy/profile.arm.json
+/Microsoft.OpenAIRateLimiter.UI/App.zip
