@@ -39,7 +39,6 @@ namespace Microsoft.OpenAIRateLimiter.UI.Controllers
 
         }
         
-
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<JsonResult> GetHistory(string subscription)
         {
@@ -86,14 +85,14 @@ namespace Microsoft.OpenAIRateLimiter.UI.Controllers
 
         }
         
-        public async Task<bool> AddQuota(string sub, string prod, string amt, string apiurl = "", string apikey = "")
+        public async Task<bool> AddQuota(string sub, string prod, string amt, bool rateLimitOnCost = true, string apiurl = "", string apikey = "")
         {
             try
             {
 
                 var subKey = string.IsNullOrEmpty(sub) ? await _svc.CreateProduct(prod, apiurl, apikey) : sub;
 
-                var payload = new { subscriptionKey = subKey, productName = prod, amount = amt };
+                var payload = new { subscriptionKey = subKey, productName = prod, amount = amt, rateLimitOnCost };
 
                 HttpContent c = new StringContent(JsonConvert.SerializeObject(payload), Encoding.UTF8, "application/json");
 

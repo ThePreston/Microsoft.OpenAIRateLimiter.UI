@@ -14,6 +14,12 @@ builder.Services.AddHttpClient("QuotaService", httpClient =>
 
 });
 
+builder.Services.AddHttpClient("ChatAPI", httpClient =>
+{
+    httpClient.BaseAddress = new Uri(builder.Configuration["QuotaAPIUrl"]);
+
+});
+
 builder.Services.AddScoped(Provider =>
 {
     return new ArmClient(new DefaultAzureCredential(true));

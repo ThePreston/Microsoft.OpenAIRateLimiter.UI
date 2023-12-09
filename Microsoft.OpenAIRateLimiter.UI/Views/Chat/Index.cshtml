@@ -1,0 +1,197 @@
+﻿@model List<Microsoft.OpenAIRateLimiter.UI.Models.ProdQuota>
+
+@{
+    ViewData["Title"] = "Chat";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Open AI Cost Gateway</h1>
+    <p>Manage spending limits</p>
+</div>
+
+<script type="text/javascript">
+
+    $(document).ajaxStart(function () {
+        $('#overlay').fadeIn();
+    });
+
+    $(document).ajaxStop(function () {
+        $('#overlay').fadeOut();
+    });
+
+    $(document).ready(function () {
+
+        $('#respParagraph').hide();
+        $('#respStream').hide();
+
+        $('#errorAlert').hide();
+
+        $("#btnGo").click(function (e) {
+            e.preventDefault();
+
+            $('#errorAlert').text('');
+            $('#errorAlert').hide();
+            $('#hiddenChatResponses').val('');
+
+            $('#respStream').text('');            
+            $('#respParagraph').text('');
+
+            var promptValue = encodeURIComponent($('#txtSearch').val());
+
+            var subscription = encodeURIComponent($('#ddlSub').val());
+
+            var stream = encodeURIComponent($("#chkStream").is(':checked'))
+
+            var passURL = $("#hiddenChatAPIURL").val() + "?sub=" + subscription + "&prompt=" + promptValue + "&stream=" + stream;
+
+            $.get(passURL, function (data) {
+
+                $('#hiddenChatResponses').val(data);
+
+                var respText = '';
+
+                $('#respParagraph').show();
+
+                if ($("#chkStream").is(':checked')) {
+
+                    var chunks = data.split("data: ").filter(el => el);
+
+                    for (var i = 1, l = chunks.length - 2; i < l; i++) {
+
+                        var chatChunk = jQuery.parseJSON(chunks[i]);
+
+                        respText += chatChunk.choices[0].delta.content;
+                        $('#respParagraph').text(respText);
+
+                    }
+                    $('#respStream').text(data);
+                    $('#respStream').show();
+                }
+                else {
+
+                    $('#respStream').hide();
+
+                    var chatResponse = jQuery.parseJSON(data);
+
+                    $('#respParagraph').text(chatResponse.choices[0].message.content);
+                }
+
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                $('#errorAlert').text('jqXHR = ' + jqXHR.responseText + '; textStatus = ' + textStatus + '; errorThrown = ' + errorThrown);
+                $('#errorAlert').show();
+            });
+
+        });
+
+    });
+
+    $(document).bind('keydown', function (e) {
+        if (e.which === 13) {
+
+            $('#btnGo').trigger('click');
+
+        }
+    });
+
+</script>
+
+<div class="jumbotron shadow-lg p-3 mb-5 rounded rounded-lg">
+    <div class="row">
+        <div class="col-1">
+        </div>
+        <div class="col-6">
+            <label class="col-form-label col-form-label-lg" title="Chat with AI">Chat with AI</label>
+        </div>
+        <div class="col-5 align-bottom">
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-1">
+        </div>
+        <div class="col-9">
+            <input type="text" title="AI Prompt" placeholder="ask chat gpt" value="" name="Search" id="txtSearch" class="form-control" />
+        </div>
+        <div class="col-2">
+            <input type="button" id="btnGo" class="btn btn-primary" name="name" value="Go!" />
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <label class="col-form-label col-form-label-lg" title=""></label>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-1">
+        </div>
+        <div class="col-6">
+            <div class="form-check form-switch">
+                <label class="form-check-label">Stream</label>
+                <input class="form-check-input" type="checkbox" role="switch" id="chkStream">
+            </div>
+        </div>
+        <div class="col-5 align-bottom">
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-1">
+        </div>
+        <div class="col-6 form-group">
+            <select class="form-select" aria-label="Default select example" id="ddlSub" asp-items="@Model.Select(s => new SelectListItem {Text = s.ProductName, Value = s.SubscriptionKey}).ToList()">
+                <option selected value="">Choose Product</option>
+            </select>
+        </div>
+        <div class="col-1">
+        </div>
+        <div class="col-4 align-bottom">           
+        </div>
+    </div>
+
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div id="overlay" style="display:none; left: 50%; margin-left: -4em;" class="col-12">
+            <div class="spinner-border" style="width: 3rem; height: 3rem; " role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+            <br />
+            Loading...
+        </div>
+    </div>
+</div>
+
+<div class="alert alert-danger" role="alert" id="errorAlert">
+</div>
+
+<div class="row">
+
+    <div class="row">
+        <div class="col-1">
+        </div>
+        <div class="col-10">
+            <p class="text-justify form-control" id="respParagraph" ></p>
+        </div>
+        <div class="col-1 align-bottom">
+        </div>
+    </div>
+</div>
+
+<div class="row" id="divStream">
+
+    <div class="row">
+        <div class="col-1">
+        </div>
+        <div class="col-10">
+            <p class="text-justify form-control" id="respStream"></p>
+        </div>
+        <div class="col-1 align-bottom">
+        </div>
+    </div>
+</div>
+
+<input type="hidden" id="hiddenChatResponses" />
+<input type="text" id="hiddenChatAPIURL" value='@Url.Action("Chat")' style="display:none" />

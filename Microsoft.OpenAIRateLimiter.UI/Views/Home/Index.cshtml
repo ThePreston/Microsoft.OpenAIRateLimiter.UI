@@ -105,6 +105,8 @@
 
             var passURL = $("#hiddenAddQuotaAPIURL").val() + "?sub=" + subscription + "&prod=" + product + "&amt=" + monthlyAmount;
 
+            passURL += "&rateLimitOnCost=" + $("#optCost").is(':checked');
+
             if ($("#chkAPI").is(':checked')) 
                 passURL += "&apiurl=" + encodeURIComponent($('#txtapiendpoint').val()) + "&apikey=" + encodeURIComponent($('#txtapikey').val());
             
@@ -314,6 +316,24 @@
                         </div>
                         <div class="col-8">
                             <input type="text" title="Amount" name="Amount" id="txtAmount" class="form-control" />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-4">
+                            <label class="col-form-label" id="lblRateLimit" title="RateLimit">Rate limit On </label>
+                        </div>
+                        <div class="col-8">
+
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="ratelimitmetric" id="optCost" value="Cost" checked>
+                                <label class="form-check-label" for="optCost">Cost</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="ratelimitmetric" id="optToken" value="Tokens">
+                                <label class="form-check-label" for="optToken">Tokens</label>
+                            </div>
+
                         </div>
                     </div>
 
